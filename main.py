@@ -1,12 +1,10 @@
-from Tkinter import *
-import tkFileDialog
+from tkinter import *
+import tkinter.filedialog
 import os, sys, inspect
 import markdown2
 main_path= os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
 dependencies_path = os.path.join(main_path, 'dependencies')
 sys.path.append(dependencies_path)
-from TkHtml import *
-from tkutil import unbind_destroy
 
 class Window():
     def __init__(self, parent):
@@ -22,10 +20,10 @@ class Editor:
         self.html_window=""
         #self.html_viewer=""
         
-        initial_text_box = Text(root, background="black", foreground="firebrick", insertbackground="white")
+        initial_text_box = Text(root, background="white", foreground="black", insertbackground="white")
         initial_text_box.pack(expand = 1, fill= BOTH)
         initial_text_box.focus_set()
-        initial_text_box.insert(END, """Welcome to ZakEdit(Work-In-Progress name) made by Zak Farmer""")
+        initial_text_box.insert(END, """Welcome to ZakEdit(Work-In-Progress name) made by Zak Farmer.\nThis program is open-source, do whatever you want.\nI programmed this in Python :)""")
 
         self.file_opt = options = {}
 
@@ -50,15 +48,13 @@ class Editor:
 
         def find_focus():
            focus= root.focus_get()
-           print focus
-           print focus.get(1.0, END)
-           print focus.master
+           print(focus)
+           print(focus.get(1.0, END))
+           print(focus.master)
            focus.master.wm_title("focused")
            
 
         menubar = Menu(root)
-        menubar.add_command(label="Hello!", command=find_focus)
-        menubar.add_command(label="fds!", command=find_focus)
         
         filemenu = Menu(menubar, tearoff=0)
         filemenu.add_command(label="New", command=self.new_window, accelerator="Command+N")
@@ -83,15 +79,12 @@ class Editor:
 
                              
         helpmenu = Menu(menubar, tearoff=0)
-        helpmenu.add_command(label="Find Focus", command=find_focus)
         helpmenu.add_command(label="About", command=self.about)
         menubar.add_cascade(label="Help", menu=helpmenu)
 
         root.config(menu=menubar)
 
 
-        root.bind_all("<Command-,>", self.launch_html_viewer)
-        root.bind_all("<Command-m>", self.view_html)
         root.bind_all("<Command-n>", self.new_window)
         root.bind_all("<Command-o>", self.open_file)
         root.bind_all("<Command-s>", self.save_file)
@@ -99,54 +92,6 @@ class Editor:
         root.bind_all("<Command-a>", self.select_all)
         root.bind_all("<Command-w>", self.destroy)
         root.bind_all("<Command-q>", self.quit_project)
-
-
-    def markdowner(self, event=''):
-        focus=root.focus_get()
-        print markdown2.markdown(focus.get(1.0, END))
-    def view_html(self, event=''):
-        focus=root.focus_get()
-        file_extension = os.path.splitext(focus.master.title())[1]
-        print file_extension
-        if (file_extension == ".md"): #checks if it is markdown
- #           html = markdown2.markdown(focus.get(1.0, END))
-#            print html
-            try:
-                html = markdown2.markdown(focus.get(1.0, END))
-                print html
-                save_file = open(os.path.splitext(focus.master.title())[0] + ".html", 'w')
-                save_file.write(html)
-                print save_file.name
-                self.launch_html_viewer(url=save_file.name)
-            except:
-                print "couldnt convert markdown to html"
-            
- 
-        else:
-            self.launch_html_viewer()
-            
-    def launch_html_viewer(self, event='', url=''):
-        print url
-        focus=root.focus_get()
-        if url == '':
-            url = focus.master.title()
-        if self.html_window == '':
-            self.html_window=Toplevel(root)
-            self.html_window.wm_title("HTML Viewer")
-            self.html_viewer=tkHTMLViewer(self.html_window)
-            self.html_viewer.url=os.path.basename(url)
-            try:
-                self.html_viewer.display(url)# for local: os.path.basename(url)
-                print url + "viewed"
-            except:
-                print "html section couldnt work"
-        else:
- #           self.html_viewer.display(url)
-            
-            try:
-                self.html_viewer.display(url) 
-            except:
-                print "html section couldnt work"
   
         
     def open_file(self, event=''):
@@ -156,11 +101,11 @@ class Editor:
         window_app.text_box.insert(END, open_file.read())
         window_app.file_name = open_file.name
         window_app.window.wm_title(window_app.file_name)
-        print window_app.file_name
+        print(window_app.file_name)
 
     def save_file(self, event=''):
         focus=root.focus_get()
-        if (focus.master.title() == '' or focus.master.title() == "Luke's Text Editor"):
+        if (focus.master.title() == '' or focus.master.title() == "ZakEdit"):
             self.save_as_file()
         else:
              save_file = open(focus.master.wm_title(), 'w')
@@ -171,7 +116,7 @@ class Editor:
         save_file = tkFileDialog.asksaveasfile(mode='w', **self.file_opt)
         save_file.write(focus.get(1.0, END))
         focus.master.wm_title(save_file.name)
-        print focus.master.title()
+        print(focus.master.title())
 
     def copy(self):
         focus=root.focus_get()
@@ -201,7 +146,7 @@ class Editor:
     def about(self):
         about_window = Toplevel(root)
         about_window.wm_title("About")
-        info = Label(about_window, text="""This is a basic text editor made by Zak Farmer in Python""")
+        info = Label(about_window, text="""This is a basic text editor made by Zak Farmer in Python\nIt's programmed in Python using Sublime Text 2 and Python 3.4\nIt's a work in progress and is hardly done yet.\nI'll be releasing versions all the time (Hopefully)\nThanks for using ZakEdit!\n:)""")
         info.pack()
         
     def destroy(self, event=''):
@@ -223,8 +168,5 @@ class Editor:
 if __name__=='__main__':
     root = Tk()
     root.wm_title("ZakEdit")
-    htmlw = Toplevel(root)
-    htmlv = tkHTMLViewer(htmlw)
-    htmlv.display("/myfile.html")
     app = Editor(root)
     root.mainloop()
